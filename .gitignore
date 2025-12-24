@@ -1,0 +1,28 @@
+node_modules/
+backend/node_modules/
+.idea/
+*.sln.iml
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+
+### macOS template
+# General
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Thumbnails
+._*
+
+=======
+# Local
+.env
+dist
+.nuxt
+build
+
+*.md
+!README.md
