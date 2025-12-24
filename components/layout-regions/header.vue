@@ -1,5 +1,7 @@
 <script setup lang="ts">
+import { ref } from 'vue';
 
+const isAuthModalOpen = ref(false);
 </script>
 
 <template>
@@ -14,14 +16,16 @@
           </span>
       </div>
       <div class="hidden md:flex gap-4">
-        <ui-button variant="ghost" size="sm">
+        <ui-button variant="ghost" size="sm" @click="isAuthModalOpen = true">
           Log In
         </ui-button>
-        <ui-Button variant="secondary" size="sm" class="shadow-none border-0">
+        <ui-button variant="secondary" size="sm" class="shadow-none border-0">
           Sign Up Free
-        </ui-Button>
+        </ui-button>
       </div>
     </div>
+    
+    <auth-modal :is-open="isAuthModalOpen" @close="isAuthModalOpen = false" />
   </nav>
 </template>
 
