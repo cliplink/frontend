@@ -6,6 +6,11 @@ export default defineNuxtConfig({
   devtools: { enabled: true },
   modules: ['@nuxtjs/tailwindcss'],
   css: [fileURLToPath(new URL('./assets/css/main.css', import.meta.url))],
+  runtimeConfig: {
+    public: {
+      apiBaseUrl: process.env.NUXT_PUBLIC_API_BASE_URL || 'http://localhost:3000'
+    }
+  },
   app: {
     head: {
       title: 'Shorty - URL Shortener',
