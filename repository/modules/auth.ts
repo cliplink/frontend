@@ -16,4 +16,10 @@ export default class AuthModule extends AuthApi {
       body: data,
     });
   }
+
+  async logout(): Promise<void> {
+    return this.fetcher<void>(`${this.baseUrl}/logout`, {
+      method: 'POST',
+    });
+  }
 }

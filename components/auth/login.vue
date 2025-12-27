@@ -123,7 +123,8 @@ const handleSubmit = async () => {
   } catch (err: any) {
     console.error('Login error:', err);
     if (err.response?._data?.message) {
-      error.value = err.response._data.message;
+      const { message } = err.response._data;
+      error.value = Array.isArray(message) ? message[0] : message;
     } else {
       error.value = 'An unexpected error occurred.';
     }

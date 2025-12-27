@@ -5,13 +5,13 @@
   "private": true,
   "scripts": {
     "build": "nuxt build",
-    "dev": "nuxt dev",
+    "dev": "PORT=5000 nuxt dev",
     "generate": "nuxt generate",
     "preview": "nuxt preview",
     "postinstall": "nuxt prepare"
   },
   "dependencies": {
-    "@cliplink/backend-contracts": "0.0.11",
+    "@cliplink/backend-contracts": "0.0.13",
     "lucide-vue-next": "^0.562.0",
     "nuxt": "^4.2.2"
   },
@@ -19,6 +19,7 @@
     "@eslint/eslintrc": "^3.3.3",
     "@eslint/js": "^9.39.2",
     "@nuxtjs/tailwindcss": "^6.14.0",
+    "@types/node": "^22.10.7",
     "eslint": "^9.39.2",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-import": "^2.32.0",
