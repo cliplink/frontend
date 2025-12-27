@@ -1,7 +1,18 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 
-const isAuthModalOpen = ref(false);
+const isLoginOpen = ref(false);
+const isRegisterOpen = ref(false);
+
+const openLogin = () => {
+  isRegisterOpen.value = false;
+  isLoginOpen.value = true;
+};
+
+const openRegister = () => {
+  isLoginOpen.value = false;
+  isRegisterOpen.value = true;
+};
 </script>
 
 <template>
@@ -16,16 +27,26 @@ const isAuthModalOpen = ref(false);
           </span>
       </div>
       <div class="hidden md:flex gap-4">
-        <ui-button variant="ghost" size="sm" @click="isAuthModalOpen = true">
+        <ui-button variant="ghost" size="sm" @click="openLogin">
           Log In
         </ui-button>
-        <ui-button variant="secondary" size="sm" class="shadow-none border-0">
+        <ui-button variant="secondary" size="sm" class="shadow-none border-0" @click="openRegister">
           Sign Up Free
         </ui-button>
       </div>
     </div>
     
-    <auth-modal :is-open="isAuthModalOpen" @close="isAuthModalOpen = false" />
+    <auth-login 
+      :is-open="isLoginOpen" 
+      @close="isLoginOpen = false"
+      @switch-to-register="openRegister"
+    />
+
+    <auth-register
+      :is-open="isRegisterOpen"
+      @close="isRegisterOpen = false"
+      @switch-to-login="openLogin"
+    />
   </nav>
 </template>
 

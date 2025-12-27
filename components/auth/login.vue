@@ -65,21 +65,22 @@
 
     <div class="mt-6 text-center text-sm text-gray-500">
       Don't have an account?
-      <a href="#" class="text-pink-500 font-bold hover:underline">Sign up</a>
+      <a href="#" @click.prevent="switchToRegister" class="text-pink-500 font-bold hover:underline">Sign up</a>
     </div>
   </ui-modal>
 </template>
 
 <script setup lang="ts">
-import {ref} from 'vue';
+import {ref, watch} from 'vue';
 import {Mail, Lock, AlertCircle} from 'lucide-vue-next';
 
-defineProps<{
+const props = defineProps<{
   isOpen: boolean;
 }>();
 
 const emit = defineEmits<{
   (e: 'close'): void;
+  (e: 'switch-to-register'): void;
 }>();
 
 const email = ref('');
@@ -89,11 +90,20 @@ const error = ref('');
 
 const {auth} = useApi();
 
+watch(() => props.isOpen, (isOpen) => {
+  if (isOpen) {
+    error.value = '';
+    email.value = '';
+    password.value = '';
+  }
+});
+
 const close = () => {
-  error.value = '';
-  email.value = '';
-  password.value = '';
   emit('close');
+};
+
+const switchToRegister = () => {
+  emit('switch-to-register');
 };
 
 const handleSubmit = async () => {
@@ -101,15 +111,21 @@ const handleSubmit = async () => {
   isLoading.value = true;
 
   try {
-    await auth.login({
+    const response = await auth.login({
       email: email.value,
       password: password.value
     });
+    
+    const token = useCookie('accessToken');
+    token.value = response.accessToken;
+
     close();
   } catch (err: any) {
     console.error('Login error:', err);
     if (err.response?._data?.message) {
       error.value = err.response._data.message;
+    } else {
+      error.value = 'An unexpected error occurred.';
     }
   } finally {
     isLoading.value = false;

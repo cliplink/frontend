@@ -1,26 +1,19 @@
 import type { NitroFetchRequest, $Fetch } from 'nitropack';
+import { AuthApi, type BodyLogin, type Login } from '@cliplink/backend-contracts';
 
-interface LoginPayload {
-  email: string;
-  password?: string;
-}
-
-interface AuthResponse {
-  token: string;
-  user: any;
-}
-
-export default class AuthModule {
-  private fetcher: $Fetch<unknown, NitroFetchRequest>;
+export default class AuthModule extends AuthApi {
+  private readonly fetcher: $Fetch<unknown, NitroFetchRequest>;
 
   constructor(fetcher: $Fetch<unknown, NitroFetchRequest>) {
+    super();
+
     this.fetcher = fetcher;
   }
 
-  async login(payload: LoginPayload): Promise<AuthResponse> {
-    return this.fetcher<AuthResponse>('/auth', {
+  async login(data: BodyLogin): Promise<Login> {
+    return this.fetcher<Login>(`${this.baseUrl}/login`, {
       method: 'POST',
-      body: payload,
+      body: data,
     });
   }
 }
