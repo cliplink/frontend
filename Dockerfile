@@ -28,13 +28,13 @@ WORKDIR /app
 ENV NODE_ENV=production
 # HOST=0.0.0.0 обязателен для доступа к контейнеру извне
 ENV HOST=0.0.0.0
-ENV PORT=3000
+ENV PORT=5000
 
 # Копируем только артефакты сборки из builder
 COPY --from=builder /app/.output ./.output
 
 # Открываем порт
-EXPOSE 3000
+EXPOSE 5000
 
 # Запускаем сервер
 CMD ["node", ".output/server/index.mjs"]
