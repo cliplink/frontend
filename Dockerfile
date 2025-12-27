@@ -10,8 +10,8 @@ ARG PACKAGES_TOKEN
 COPY package.json package-lock.json .npmrc ./
 
 # Устанавливаем зависимости
-# Передаем аргумент в переменную окружения, чтобы .npmrc мог его подхватить
-RUN PACKAGES_TOKEN=${PACKAGES_TOKEN} npm ci
+# Передаем аргумент в переменную окружения GITHUB_PACKAGES_TOKEN, которую ожидает .npmrc
+RUN GITHUB_PACKAGES_TOKEN=${PACKAGES_TOKEN} npm ci
 
 # Копируем исходный код
 COPY . .
