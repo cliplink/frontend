@@ -1,5 +1,6 @@
 import AuthModule from '~/repository/modules/auth';
 import { UserModule } from '~/repository/modules/user';
+import { LinksModule } from '~/repository/modules/links';
 
 export const useApi = () => {
   const config = useRuntimeConfig();
@@ -21,6 +22,7 @@ export const useApi = () => {
     onResponseError({ response }) {
       if (response.status === 401) {
         token.value = null;
+        // Здесь можно добавить редирект на логин или очистку состояния пользователя
       }
     }
   });
@@ -28,5 +30,6 @@ export const useApi = () => {
   return {
     auth: new AuthModule(apiFetcher),
     user: new UserModule(apiFetcher),
+    links: new LinksModule(apiFetcher),
   };
 };

@@ -20,39 +20,73 @@
         <form @submit.prevent="handleSubmit" class="space-y-6">
           <div class="relative group">
             <div class="absolute inset-y-0 left-0 pl-6 flex items-center pointer-events-none">
-              <Link2 class="h-6 w-6 text-gray-400 group-focus-within:text-pink-500 transition-colors"/>
+              <Link2 
+                class="h-6 w-6 transition-colors"
+                :class="error ? 'text-red-400' : 'text-gray-400 group-focus-within:text-pink-500'"
+              />
             </div>
             <input
                 type="text"
                 v-model="url"
-                class="block w-full pl-14 pr-6 py-5 bg-gray-50 border-2 border-gray-100 text-gray-900 text-lg rounded-2xl focus:ring-4 focus:ring-pink-100 focus:border-pink-400 transition-all outline-none placeholder-gray-400"
+                class="block w-full pl-14 pr-6 py-5 bg-gray-50 border-2 text-gray-900 text-lg rounded-2xl transition-all outline-none placeholder-gray-400"
+                :class="error ? 'border-red-300 focus:ring-4 focus:ring-red-100 focus:border-red-400' : 'border-gray-100 focus:ring-4 focus:ring-pink-100 focus:border-pink-400'"
                 placeholder="https://super-long-url.com/that-nobody-wants-to-type"
+                @input="handleInputChange"
             />
           </div>
 
-          <p v-if="error" class="text-red-500 text-center font-medium animate-pulse">
-            Oops! {{ error }} 🙈
-          </p>
+           <!-- Error Messages -->
+           <div v-if="error" class="p-4 rounded-2xl border-2 animate-in fade-in slide-in-from-top-2 duration-300"
+               :class="errorType === 'validation' ? 'bg-orange-50 border-orange-200' : 'bg-red-50 border-red-200'">
+            <div class="flex items-start gap-3">
+              <div class="flex-shrink-0" :class="errorType === 'validation' ? 'text-orange-500' : 'text-red-500'">
+                <AlertCircle v-if="errorType === 'validation'" class="w-6 h-6" />
+                <XCircle v-else class="w-6 h-6" />
+              </div>
+              <div class="flex-1">
+                <p class="font-semibold mb-1" :class="errorType === 'validation' ? 'text-orange-800' : 'text-red-800'">
+                  {{ errorType === 'validation' ? 'Invalid URL' : 'Server Error' }}
+                </p>
+                <div class="text-sm" :class="errorType === 'validation' ? 'text-orange-700' : 'text-red-700'">
+                  <template v-if="Array.isArray(error)">
+                    <ul class="list-disc list-inside">
+                      <li v-for="(msg, index) in error" :key="index">{{ msg }}</li>
+                    </ul>
+                  </template>
+                  <template v-else>
+                    {{ error }}
+                  </template>
+                </div>
+              </div>
+            </div>
+          </div>
 
           <ui-button type="submit" class="w-full text-xl py-5" size="lg" :is-loading="isLoading">
-            Shorten It!
+            {{ isLoading ? 'Shortening...' : 'Shorten It!' }}
             <Sparkles class="ml-2 w-5 h-5"/>
           </ui-button>
         </form>
 
         <div v-if="shortUrl"
-             class="mt-8 p-6 bg-gradient-to-r from-blue-50 to-purple-50 rounded-2xl border border-blue-100 animate-in fade-in slide-in-from-bottom-4 duration-500">
+             class="mt-8 p-6 bg-gradient-to-r from-blue-50 to-purple-50 rounded-2xl border-2 border-blue-200 animate-in fade-in slide-in-from-bottom-4 duration-500 shadow-lg">
           <div class="flex flex-col md:flex-row items-center justify-between gap-4">
             <div class="flex items-center gap-3 overflow-hidden w-full">
-              <div class="bg-white p-2 rounded-full shadow-sm">
+              <div class="bg-white p-2 rounded-full shadow-md animate-bounce">
                 <Check class="w-5 h-5 text-green-500"/>
               </div>
-              <span class="text-xl font-bold text-blue-600 truncate">
-                {{ shortUrl }}
-              </span>
+              <div class="flex-1 min-w-0">
+                  <p class="text-xs text-gray-500 mb-1 font-medium">
+                    Your shortened link:
+                  </p>
+                  <span class="text-xl md:text-2xl font-bold text-blue-600 truncate block">
+                    {{ shortUrl }}
+                  </span>
+                </div>
             </div>
-            <ui-button @click="handleCopy" variant="secondary" size="md" class="w-full md:w-auto whitespace-nowrap">
-              <template v-if="copied">Copied! 🎉</template>
+            <ui-button @click="handleCopy" variant="secondary" size="md" class="w-full md:w-auto whitespace-nowrap shadow-md hover:shadow-lg">
+              <template v-if="copied">
+                 Copied! <Check class="ml-2 w-4 h-4 text-green-500"/>
+              </template>
               <template v-else>
                 Copy Link
                 <Copy class="ml-2 w-4 h-4"/>
@@ -60,8 +94,8 @@
             </ui-button>
           </div>
 
-          <div class="mt-4 pt-4 border-t border-blue-100 flex justify-center">
-            <a href="#" class="text-sm text-gray-500 hover:text-blue-500 flex items-center gap-1 transition-colors">
+          <div class="mt-4 pt-4 border-t border-blue-200 flex justify-center">
+            <a href="#" class="text-sm text-gray-600 hover:text-blue-600 flex items-center gap-1 transition-colors font-medium">
               View stats for this link
               <ArrowRight class="w-3 h-3"/>
             </a>
@@ -74,35 +108,82 @@
 
 <script setup lang="ts">
 import {ref} from 'vue';
-import {Link2, Copy, Check, Sparkles, ArrowRight} from 'lucide-vue-next';
+import {Link2, Copy, Check, Sparkles, ArrowRight, AlertCircle, XCircle} from 'lucide-vue-next';
 import {triggerConfetti} from '~/utils/confetti';
+
+type ErrorType = 'validation' | 'server' | null;
 
 const url = ref('');
 const isLoading = ref(false);
 const shortUrl = ref('');
 const copied = ref(false);
-const error = ref('');
+const error = ref<string | string[]>('');
+const errorType = ref<ErrorType>(null);
+const { links } = useApi();
+const config = useRuntimeConfig();
+
+const isValidUrl = (urlString: string): boolean => {
+  try {
+    // Add protocol if missing
+    const urlToTest = urlString.startsWith('http') ? urlString : `https://${urlString}`;
+    const url = new URL(urlToTest);
+    // Check if it has a valid domain with TLD
+    return url.hostname.includes('.') && url.hostname.split('.').length >= 2;
+  } catch {
+    return false;
+  }
+};
+
+const handleInputChange = () => {
+    // Clear errors when user starts typing
+    if (error.value) {
+      error.value = '';
+      errorType.value = null;
+    }
+};
 
 const handleSubmit = async () => {
-  if (!url.value) return;
+  if (!url.value.trim()) {
+      error.value = 'Please enter a URL first! 🔗';
+      errorType.value = 'validation';
+      return;
+    }
 
   // Basic validation
-  if (!url.value.includes('.')) {
-    error.value = 'Please enter a valid URL (e.g., google.com)';
+  if (!isValidUrl(url.value)) {
+    error.value = 'Hmm, that doesn\'t look like a valid URL. Try something like "example.com" or "https://example.com"';
+    errorType.value = 'validation';
     return;
   }
 
   error.value = '';
+  errorType.value = null;
   isLoading.value = true;
   shortUrl.value = '';
 
-  // Simulate API call
-  setTimeout(() => {
-    isLoading.value = false;
-    const randomString = Math.random().toString(36).substring(7);
-    shortUrl.value = `short.link/${randomString}`;
+  try {
+    const expiresAt = new Date();
+    expiresAt.setFullYear(expiresAt.getFullYear() + 1);
+
+    const link = await links.createLink({
+        target: url.value,
+        expiresAt: expiresAt.toISOString()
+    });
+
+    shortUrl.value = `${config.public.apiBaseUrl}/l/${link.shortId}`;
+
     triggerConfetti();
-  }, 1500);
+  } catch (err: any) {
+      console.error('Create link error:', err);
+      errorType.value = 'server';
+      if (err.response?._data?.message) {
+        error.value = err.response._data.message;
+      } else {
+        error.value = 'Oops! Our servers are having a moment. Please try again in a few seconds.';
+      }
+  } finally {
+    isLoading.value = false;
+  }
 };
 
 const handleCopy = () => {
