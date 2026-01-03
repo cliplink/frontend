@@ -4,14 +4,14 @@ FROM node:20-alpine AS builder
 WORKDIR /app
 
 # Определяем аргумент сборки для токена
-ARG PACKAGES_TOKEN
+ARG CLIPLINK_PACKAGES_TOKEN
 
 # Копируем конфиги зависимостей
 COPY package.json package-lock.json .npmrc ./
 
 # Устанавливаем зависимости
-# Передаем аргумент в переменную окружения GITHUB_PACKAGES_TOKEN, которую ожидает .npmrc
-RUN GITHUB_PACKAGES_TOKEN=${PACKAGES_TOKEN} npm ci
+# Передаем аргумент в переменную окружения CLIPLINK_PACKAGES_TOKEN, которую ожидает .npmrc
+RUN CLIPLINK_PACKAGES_TOKEN=${CLIPLINK_PACKAGES_TOKEN} npm ci
 
 # Копируем исходный код
 COPY . .
