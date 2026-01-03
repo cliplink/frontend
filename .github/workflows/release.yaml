@@ -54,7 +54,7 @@ jobs:
           file: ./Dockerfile
           push: true
           build-args: |
-            PACKAGES_TOKEN=${{ secrets.CLIPLINK_PACKAGES_TOKEN }}
+            CLIPLINK_PACKAGES_TOKEN=${{ secrets.CLIPLINK_PACKAGES_TOKEN }}
           tags: |
             ghcr.io/${{ github.repository_owner }}/frontend:latest
             ghcr.io/${{ github.repository_owner }}/frontend:v${{ needs.bump-version.outputs.new_version }}
